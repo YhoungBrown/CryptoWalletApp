@@ -1,9 +1,13 @@
-import { View, Text, Dimensions, Modal } from 'react-native'
-import React, { useState } from 'react'
-import{LineChart,} from "react-native-chart-kit";
+import { Skeleton } from 'moti/skeleton';
+import React from 'react';
+import { Dimensions, View } from 'react-native';
+import { LineChart, } from "react-native-chart-kit";
+import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 
-import { SIZES, COLORS } from '../constants';
 import moment from 'moment/moment';
+import { useSelector } from 'react-redux';
+import { COLORS } from '../constants';
+import { selectCoins } from '../stores/market/marketSlice';
 
 
 
@@ -39,6 +43,19 @@ const formatNumber = (value, roundingPoint) => {
 
 
 const Chart = ({ containerStyle, chartPrices }) => {
+  const coins = useSelector(selectCoins);
+
+
+  const showShadow = coins.length === 0 || !coins
+
+  const skeletonCommonProps = {
+    colorMode: 'light' ,
+    backgroundColor:'#D4D4D4',
+    transition:{
+        type: 'timing',
+        duration: 2000,
+    }
+}
 
  //const [clickedValue, setClickedValue] = useState("");
  // const [modalVisible, setModalVisible] = useState(false);
@@ -80,7 +97,21 @@ const Chart = ({ containerStyle, chartPrices }) => {
 
 
   return (
-    <View style={{ marginTop: 6, ...containerStyle }}>
+    <View style={{marginTop: 12}}>
+    <Skeleton
+      show={showShadow}
+        height={185} 
+        width={400} 
+        //radius= {'round'}
+        {...skeletonCommonProps}
+        
+      >
+
+    <Animated.View 
+    layout={Layout} 
+    entering={FadeIn.duration(1500)}
+    style={{ ...containerStyle }}>
+    {!chartPrices ? (<View style={{marginTop: 30}}></View>) : null}
       {data && data.length > 0 && chartPrices && (
         <LineChart
           data={{
@@ -137,7 +168,9 @@ const Chart = ({ containerStyle, chartPrices }) => {
       
       
 
-    </View>
+    </Animated.View>
+  </Skeleton>
+  </View>
   );
 };
 

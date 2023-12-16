@@ -1,16 +1,15 @@
-import { View, Text, TouchableOpacity, FlatList, Animated, Image} from 'react-native'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import{LineChart,} from "react-native-chart-kit";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { LineChart, } from "react-native-chart-kit";
 
 
-import MainLayout from './MainLayout'
-import { SIZES, COLORS, constants, icons} from '../constants';
-import { useDispatch, useSelector } from 'react-redux';
-import { getCoinMarketBegin, getCoinMarketFailure, getCoinMarketSuccess, selectCoins } from '../stores/market/marketSlice';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import HeaderBar from '../components/HeaderBar';
 import TextButton from '../components/TextButton';
-import { measure } from 'react-native-reanimated';
+import { COLORS, SIZES, constants, icons } from '../constants';
+import { getCoinMarketBegin, getCoinMarketFailure, getCoinMarketSuccess, selectCoins } from '../stores/market/marketSlice';
+import MainLayout from './MainLayout';
 
 
 
@@ -159,7 +158,7 @@ const Market = () => {
 
 
   useEffect(() => {
-    //getCoinMarket()
+    getCoinMarket()
   }, [])
 
 

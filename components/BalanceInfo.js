@@ -1,18 +1,62 @@
-import { View, Text, Image } from 'react-native'
+import { Skeleton } from 'moti/skeleton'
 import React from 'react'
-import { SIZES, COLORS,icons } from '../constants'
+import { Image, Text, View } from 'react-native'
+import Animated, { FadeIn, Layout } from 'react-native-reanimated'
+import { useSelector } from 'react-redux'
+import { COLORS, SIZES, icons } from '../constants'
+import { selectMyHoldings } from '../stores/market/marketSlice'
+
+
 
 const BalanceInfo = ({title,displayAmount,changePct, containerStyle}) => {
+  const  myHoldings = useSelector(selectMyHoldings);
+
+  const showShadow = myHoldings.length === 0 || !myHoldings
+
+  const skeletonCommonProps = {
+    colorMode: 'light' ,
+    backgroundColor:'#D4D4D4',
+    transition:{
+        type: 'timing',
+        duration: 2000,
+    }
+}
+
   return (
     <View style={{...containerStyle}}>
          {/**Title */}
-      <Text style={{
-        color: COLORS.lightGray3,
-        fontWeight: '400'
-      }}>{title}</Text>
+      <Skeleton
+      show={showShadow}
+        height={15} 
+        width={80} 
+        //radius= {'round'}
+        {...skeletonCommonProps}
+      >
+        <Animated.Text 
+        layout={Layout} 
+        entering={FadeIn.duration(1500)}
+        style={{
+          color: COLORS.lightGray3,
+          fontWeight: '400'
+        }}
+        >
+        {title}
+      </Animated.Text>
+      </Skeleton>
+      
 
         {/**Figure */}
-      <View
+    <Skeleton.Group>
+      <Skeleton
+      show={showShadow}
+        height={32} 
+        width={230} 
+        //radius= {'round'}
+        {...skeletonCommonProps}
+      >
+      <Animated.View
+      layout={Layout} 
+      entering={FadeIn.duration(1500)}
       style={{
         flexDirection: 'row',
         alignItems: 'flex-end'
@@ -22,10 +66,22 @@ const BalanceInfo = ({title,displayAmount,changePct, containerStyle}) => {
             <Text style={{ marginLeft: SIZES.base/2,
                 color: COLORS.lightGray3, fontWeight: '400', fontSize:12 
             }}>USD</Text>
-      </View>
+      </Animated.View>
+      </Skeleton>
 
         {/**Change Percentage */}
-        <View style={{
+        <Skeleton
+        show={showShadow}
+        height={20} 
+        width={130} 
+        //radius= {'round'}
+        {...skeletonCommonProps}
+      >
+
+        <Animated.View 
+        layout={Layout} 
+        entering={FadeIn.duration(1500)}
+        style={{
             flexDirection: 'row',
             alignItems: 'flex-end'
         }}>
@@ -61,7 +117,9 @@ const BalanceInfo = ({title,displayAmount,changePct, containerStyle}) => {
             }}>
                 7d change
             </Text>
-        </View>
+        </Animated.View>
+      </Skeleton>
+      </Skeleton.Group>
     </View>
   )
 }

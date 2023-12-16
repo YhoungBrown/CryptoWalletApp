@@ -1,6 +1,6 @@
-import { Text, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { SIZES, COLORS, constants, icons} from '../constants';
+import React from 'react';
+import { Text, TouchableOpacity } from 'react-native';
+import { COLORS } from '../constants';
 
 const TextButton = ({label, containerStyle, onPress}) => {
   return (

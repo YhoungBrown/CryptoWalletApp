@@ -1,15 +1,14 @@
-import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
-import { useFocusEffect } from '@react-navigation/native'
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 
 
-import MainLayout from './MainLayout'
+import { useDispatch, useSelector } from 'react-redux';
 import BalanceInfo from '../components/BalanceInfo';
 import Chart from '../components/Chart';
-import { SIZES, COLORS, dummyData, icons} from '../constants';
-import { useDispatch, useSelector } from 'react-redux';
+import { COLORS, SIZES, dummyData, icons } from '../constants';
 import { getHoldingsBegin, getHoldingsFailure, getHoldingsSuccess, selectMyHoldings } from '../stores/market/marketSlice';
+import MainLayout from './MainLayout';
 
 
 
@@ -24,7 +23,6 @@ const Portfolio = () => {
     //console.log(holdings);
     
     try {
-     // const ids = holdings.map(item => item.id).join('');
       const apiUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=${sparkline}&price_change_percentage=${priceChangePercentage}&locale=en`;
       console.log(apiUrl);
 
@@ -98,7 +96,7 @@ const Portfolio = () => {
   )*/}
 
   useEffect(() => {
-    //getHoldings(holdings = dummyData.holdings);
+    getHoldings(holdings = dummyData.holdings);
   }, [])
 
 
@@ -250,6 +248,13 @@ const Portfolio = () => {
               </TouchableOpacity>
             )}
           }}
+          ListFooterComponent={
+          <View 
+            style={{
+              marginBottom:15
+            }}
+          />
+          }
         />
 
       </View>

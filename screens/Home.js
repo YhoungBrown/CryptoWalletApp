@@ -1,16 +1,17 @@
-import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { Skeleton } from 'moti/skeleton';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 import { useDispatch, useSelector } from 'react-redux';
-import { useFocusEffect } from '@react-navigation/native';
-import { getHoldings, getHoldingsBegin, getHoldingsFailure, getHoldingsSuccess, selectCoins, selectMyHoldings, getCoinMarketBegin, getCoinMarketSuccess, getCoinMarketFailure} from '../stores/market/marketSlice';
-import { useCallback } from 'react';
+import { getCoinMarketBegin, getCoinMarketFailure, getCoinMarketSuccess, getHoldingsBegin, getHoldingsFailure, getHoldingsSuccess, selectCoins, selectMyHoldings } from '../stores/market/marketSlice';
 
-import MainLayout from './MainLayout'
-import { SIZES, COLORS, dummyData, icons} from '../constants';
+
 import axios from 'axios';
+import { IconTextButton } from '../components';
 import BalanceInfo from '../components/BalanceInfo';
-import { IconTextButton  } from '../components';
 import Chart from '../components/Chart';
+import { COLORS, SIZES, dummyData, icons } from '../constants';
+import MainLayout from './MainLayout';
 
 
 
@@ -21,6 +22,21 @@ const Home = () => {
  const  myHoldings = useSelector(selectMyHoldings);
   const coins = useSelector(selectCoins);
   const [selectedCoin, setSelectedCoin] = useState(null)
+
+
+  const TopCryptocurrencyPlaceholderList = useMemo(() => {
+    return Array.from({length: 10}).map(() => null)
+  }, [])
+
+
+  const skeletonCommonProps = {
+    colorMode: 'light' ,
+    backgroundColor:'#D4D4D4',
+    transition:{
+        type: 'timing',
+        duration: 2000,
+    }
+}
 
 
 
@@ -130,8 +146,8 @@ const Home = () => {
   )*/}
 
   useEffect(() => {
-    //getHoldings(holdings = dummyData.holdings);
-    //getCoinMarket();
+    getHoldings(holdings = dummyData.holdings);
+    getCoinMarket();
   }, [])
 
 
@@ -150,7 +166,7 @@ const Home = () => {
           borderBottomRightRadius: 25,
           backgroundColor: COLORS.gray,
         }}
-      >
+      > 
           {/**Balance Info section */}
           <BalanceInfo 
             title="Your Wallet"
@@ -216,10 +232,131 @@ const Home = () => {
         />
 
       {/**Top Cryptocurrency */}
-      <View style={{marginBottom: SIZES.radius}}>
-          <Text style={{color: COLORS.white, fontSize: 15, fontWeight: '600', marginLeft: 10}}>Top Cryptocurrency</Text>
+      <View style={{marginTop: 2}}>
+      <Skeleton
+        show={(coins.length === 0 || !coins)}
+        height={20} 
+        width={150} 
+        //radius= {'round'}
+        {...skeletonCommonProps}
+      >
+        <Animated.View 
+        layout={Layout} 
+        entering={FadeIn.duration(1500)}
+        style={{marginBottom: SIZES.radius}}>
+            <Text style={{color: COLORS.white, fontSize: 15, fontWeight: '600', marginLeft: 10}}>Top Cryptocurrency</Text>
+        </Animated.View>
+      </Skeleton>
       </View>
+
+          {/**For skeleton loading */}
+      {(coins.length === 0 || !coins) && (
       <FlatList 
+        data={TopCryptocurrencyPlaceholderList}
+        contentContainerStyle={{
+          marginTop: 5,
+          paddingHorizontal: SIZES.padding
+        }}
+        renderItem={({item}) => {
+
+          //const showShadow = item === null
+          return(
+            <TouchableOpacity style={{
+              height: 55,
+              flexDirection: "row",
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            >
+              {/**Logo */}
+              <Skeleton.Group>
+              <Skeleton
+                show
+                height={20} 
+                width={20} 
+                //radius= {'round'}
+                {...skeletonCommonProps}
+              >
+                <Animated.View
+                layout={Layout} 
+                entering={FadeIn.duration(1500)}
+                  style={{width: 35}}>
+                    
+                </Animated.View>
+              </Skeleton>
+
+              {/**Name */}
+              <View style={{flex: 1}}>
+              <Skeleton
+                show
+                height={20} 
+                width={115} 
+                //radius= {'round'}
+                {...skeletonCommonProps}
+              >
+                <View
+                layout={Layout} 
+                entering={FadeIn.duration(1500)}
+                 style={{flex: 1}}>
+                    <Text style={{color: COLORS.white, fontWeight: '500'}}></Text>
+                </View>
+              </Skeleton>
+              </View>
+
+              {/**Figures */}
+              <View>
+              <View>
+                <Skeleton
+                show
+                height={18} 
+                width={82} 
+                //radius= {'round'}
+                {...skeletonCommonProps}
+                >
+                  <Animated.Text 
+                  layout={Layout} 
+                  entering={FadeIn.duration(1500)}
+                  style={{textAlign: 'right', color: COLORS.white, fontWeight: '600'}}></Animated.Text>
+
+                </Skeleton>
+              </View>
+                
+                <View style={{alignItems:'flex-end'}}>
+                  <Skeleton
+                    show
+                    height={15} 
+                    width={70} 
+                    //radius= {'round'}
+                    {...skeletonCommonProps}
+                  >
+
+                    <Animated.View
+                    layout={Layout} 
+                    entering={FadeIn.duration(1500)}
+                     style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+                    
+                      <Text style={{marginLeft: 5, fontWeight: '300', lineHeight: 15}}></Text>
+                    </Animated.View>
+                  
+                  </Skeleton>
+                </View>
+              </View>
+              </Skeleton.Group>
+            </TouchableOpacity>
+          )
+        }}
+        ListFooterComponent={
+          <View 
+            style={{
+              marginBottom:10
+            }}
+          />
+        }
+      />
+      )}
+
+      {coins.length > 0 && (
+        <FlatList 
         data={coins}
         keyExtractor={item => item.id}
         contentContainerStyle={{
@@ -227,6 +364,9 @@ const Home = () => {
           paddingHorizontal: SIZES.padding
         }}
         renderItem={({item}) => {
+
+          //const showShadow = item === null
+
           let priceColor = (item.price_change_percentage_7d_in_currency === 0)? COLORS.lightGray3 : (item.price_change_percentage_7d_in_currency > 0) ? COLORS.lightGreen : COLORS.red
           return(
             <TouchableOpacity style={{
@@ -237,22 +377,72 @@ const Home = () => {
             }}
             onPress={() => setSelectedCoin(item)}>
               {/**Logo */}
-              <View
-              style={{width: 35}}>
-                  <Image source={{uri: item.image}}
-                    style={{height: 20, width: 20}}
-                  />
-              </View>
+              <Skeleton.Group>
+              <Skeleton
+                //show
+                height={20} 
+                width={20} 
+                {...skeletonCommonProps}
+              >
+                <Animated.View
+                layout={Layout} 
+                entering={FadeIn.duration(1500)}
+                  style={{width: 35}}>
+                    <Image source={{uri: item.image}}
+                      style={{height: 20, width: 20}}
+                    />
+                </Animated.View>
+              </Skeleton>
 
               {/**Name */}
-                <View style={{flex: 1}}>
+              <View style={{flex: 1}}>
+              <Skeleton
+                //show={showShadow}
+                height={20} 
+                width={115} 
+                //radius= {'round'}
+                {...skeletonCommonProps}
+              >
+                <View
+                layout={Layout} 
+                entering={FadeIn.duration(1500)}
+                 style={{flex: 1}}>
                     <Text style={{color: COLORS.white, fontWeight: '500'}}>{item.name}</Text>
                 </View>
+              </Skeleton>
+              </View>
+
               {/**Figures */}
               <View>
-                <Text style={{textAlign: 'right', color: COLORS.white, fontWeight: '600'}}>$ {item.current_price}</Text>
+              <View>
+                <Skeleton
+                //show={showShadow}
+                height={18} 
+                width={82} 
+                //radius= {'round'}
+                {...skeletonCommonProps}
+                >
+                  <Animated.Text 
+                  layout={Layout} 
+                  entering={FadeIn.duration(1500)}
+                  style={{textAlign: 'right', color: COLORS.white, fontWeight: '600'}}>$ {item.current_price}</Animated.Text>
 
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+                </Skeleton>
+              </View>
+                
+                <View style={{alignItems:'flex-end'}}>
+                  <Skeleton
+                    //show={showShadow}
+                    height={15} 
+                    width={70} 
+                    //radius= {'round'}
+                    {...skeletonCommonProps}
+                  >
+
+                    <Animated.View
+                    layout={Layout} 
+                    entering={FadeIn.duration(1500)}
+                     style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
                     {item.price_change_percentage_7d_in_currency != 0  && 
                       <Image 
                       source={icons.upArrow}
@@ -266,8 +456,12 @@ const Home = () => {
                       <Text style={{marginLeft: 5, color: priceColor, fontWeight: '300', lineHeight: 15}}>
                         {item.price_change_percentage_7d_in_currency.toFixed(2)}%
                       </Text>
+                    </Animated.View>
+                  
+                  </Skeleton>
                 </View>
               </View>
+              </Skeleton.Group>
             </TouchableOpacity>
           )
         }}
@@ -279,6 +473,7 @@ const Home = () => {
           />
         }
       />
+      )}
         
       </View>
     </MainLayout>

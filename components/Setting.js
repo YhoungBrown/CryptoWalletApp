@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Image, Switch } from 'react-native'
 import React from 'react'
+import { Image, Switch, Text, TouchableOpacity, View } from 'react-native'
 import { COLORS, SIZES, icons } from '../constants'
 
 const Setting = ({title, value, type, onPress}) => {

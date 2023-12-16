@@ -1,5 +1,5 @@
-import { View, Text, Image } from 'react-native'
 import React from 'react'
+import { Image, Text, View } from 'react-native'
 import { COLORS } from '../constants'
 
 const TabIcon = ({focused, icon, iconStyle, label, isTrade}) => {

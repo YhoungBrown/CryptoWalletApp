@@ -1,11 +1,11 @@
-import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { Image, ScrollView, Text, View } from 'react-native';
 
-import MainLayout from './MainLayout'
-import { SIZES, COLORS, dummyData, icons} from '../constants';
 import HeaderBar from '../components/HeaderBar';
 import SectionTitle from '../components/SectionTitle';
 import Setting from '../components/Setting';
+import { COLORS, SIZES, dummyData, icons } from '../constants';
+import MainLayout from './MainLayout';
 
 const Profile = () => {
 
