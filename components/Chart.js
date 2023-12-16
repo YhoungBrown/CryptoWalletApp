@@ -1,14 +1,47 @@
-import { View, Text, Dimensions } from 'react-native'
+import { View, Text, Dimensions, Modal } from 'react-native'
 import React, { useState } from 'react'
-//import { ChartDot, ChartPath, ChartPathProvider, ChartXLabel,ChartYLabel, monotoneCubicInterpolation } from '@rainbow-me/animated-charts';
-import{LineChart, Decorator} from "react-native-chart-kit";
+import{LineChart,} from "react-native-chart-kit";
 
 import { SIZES, COLORS } from '../constants';
 import moment from 'moment/moment';
 
+
+
+
+
+const formatNumber = (value, roundingPoint) => {
+  let suffix = "";
+  let modifiedValue = parseFloat(value); // Parse the string to a number
+
+  if (!isNaN(modifiedValue)) {
+    if (modifiedValue > 1e9) {
+      modifiedValue /= 1e9;
+      suffix = "B";
+    } else if (modifiedValue > 1e6) {
+      modifiedValue /= 1e6;
+      suffix = "M";
+    } else if (modifiedValue > 1e3) {
+      modifiedValue /= 1e3;
+      suffix = "K";
+    }
+  } else {
+    // Handle the case when the value is not a valid number
+    console.warn(`Invalid value: ${value}`);
+    modifiedValue = 0; // Or handle it in a way that makes sense for your application
+  }
+
+  return `${parseFloat(modifiedValue.toFixed(roundingPoint))}`;
+};
+
+
+
+
+
+
 const Chart = ({ containerStyle, chartPrices }) => {
 
-  const [clickedValue, setClickedValue] = useState("")
+ //const [clickedValue, setClickedValue] = useState("");
+ // const [modalVisible, setModalVisible] = useState(false);
 
   let startUnixTimestamp = moment().subtract(7, 'day').unix();
 
@@ -19,9 +52,14 @@ const Chart = ({ containerStyle, chartPrices }) => {
       }))
     : [];
 
+    data = data.map(point => ({
+      ...point,
+      y: formatNumber(point.y, 2),
+    }));
+
   console.log(data);
 
-  const onDataPointClick = ({ value, dataset, getColor }) => {
+  {/**const onDataPointClick = ({ value, dataset, getColor }) => {
     // You can add custom logic based on the clicked data point
     console.log(`Clicked data point - Value: ${value}, Dataset: ${dataset}`);
     const color = getColor();
@@ -29,22 +67,20 @@ const Chart = ({ containerStyle, chartPrices }) => {
   
     // Update state to trigger re-render
     setClickedValue(value);
+    setModalVisible(true);
   };
 
-  {/**const CustomDecorator = ({ x, y, data }) => {
-    return (
-      <View style={{ position: 'absolute', left: x, top: y - 20, alignItems: 'center' }}>
-        <View style={{ backgroundColor: COLORS.white, padding: 5, borderRadius: 5 }}>
-          <Text style={{ color: COLORS.black }}>{data}</Text>
-        </View>
-      </View>
-    );
+  const closeModal = () => {
+    setModalVisible(false);
   };*/}
+  
+  
+  
   
 
 
   return (
-    <View style={{ ...containerStyle }}>
+    <View style={{ marginTop: 6, ...containerStyle }}>
       {data && data.length > 0 && chartPrices && (
         <LineChart
           data={{
@@ -59,12 +95,12 @@ const Chart = ({ containerStyle, chartPrices }) => {
           width={Dimensions.get("window").width} // from react-native
           height={200}
           yAxisLabel="$"
-          yAxisSuffix="k"
+          yAxisSuffix="K"
           yAxisInterval={1}
           withInnerLines={false}
           withOuterLines={false}
           withShadow={false}
-          onDataPointClick={onDataPointClick}
+          //onDataPointClick={onDataPointClick(value)}
           chartConfig={{
             backgroundColor: COLORS.black,
             backgroundGradientFrom: COLORS.black,
@@ -74,6 +110,8 @@ const Chart = ({ containerStyle, chartPrices }) => {
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
               borderRadius: 16,
+              marginRight: 5,
+              zIndex: 50,
             },
             propsForDots: {
               r: '0',
@@ -82,29 +120,27 @@ const Chart = ({ containerStyle, chartPrices }) => {
             },
             xAxis: {
               style: {
-             // color: 'white', // Text color for x-axis labels
-              backgroundColor: COLORS.black, // Background color for x-axis labels
-          },
-        },
+              backgroundColor: COLORS.black, 
+              },
+            },
+            //formatYLabel: value => formatNumber(value, 2)
           }}
           bezier
           style={{
             marginVertical: 8,
             borderRadius: 16,
           }}
-          //decorator={() => <Decorator onPress={onDataPointClick} render={CustomDecorator} />}
         />
       )}
 
       <View style={{backgroundColor: COLORS.black, width: "100%", height: 20, marginTop: -28}}></View>
       
-      {clickedValue && (
-            <View style={{ position: 'absolute', top: 50, left: 10 }}>
-              <Text style={{ color: COLORS.white }}>{clickedValue}</Text>
-            </View>
-          )}
+      
+
     </View>
   );
 };
+
+
 
 export default Chart;

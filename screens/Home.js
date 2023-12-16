@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { getHoldings, getHoldingsBegin, getHoldingsFailure, getHoldingsSuccess, selectCoins, selectMyHoldings, getCoinMarketBegin, getCoinMarketSuccess, getCoinMarketFailure} from '../stores/market/marketSlice';
@@ -20,7 +20,7 @@ const Home = () => {
   const dispatch = useDispatch();
  const  myHoldings = useSelector(selectMyHoldings);
   const coins = useSelector(selectCoins);
-  
+  const [selectedCoin, setSelectedCoin] = useState(null)
 
 
 
@@ -31,9 +31,10 @@ const Home = () => {
     
     try {
      // const ids = holdings.map(item => item.id).join('');
-      const apiUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=${sparkline}&price_change_percentage=${priceChangePercentage}&locale=en`;
-      //console.log(apiUrl);
+      const apiUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=${sparkline}&price_change_percentage=${priceChangePercentage}`;
+      console.log(apiUrl);
 
+      //https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=${sparkline}&price_change_percentage=${priceChangePercentage}&locale=en
       
 
   
@@ -121,12 +122,17 @@ const Home = () => {
 
 
 
-  useFocusEffect(
+  {/**useFocusEffect(
     useCallback(() => {
       getHoldings(holdings = dummyData.holdings);
       getCoinMarket();
     }, [])
-  )
+  )*/}
+
+  useEffect(() => {
+    //getHoldings(holdings = dummyData.holdings);
+    //getCoinMarket();
+  }, [])
 
 
   let totalWallet = myHoldings.reduce((a, b) => a + ((b && b.total) || 0), 0);
@@ -160,7 +166,7 @@ const Home = () => {
             style={{
               flexDirection: 'row',
               marginTop: 30,
-              marginBottom: -15,
+              marginBottom: -10,
               paddingHorizontal: SIZES.radius,
             }}
           >
@@ -203,12 +209,76 @@ const Home = () => {
 
       <Chart 
           constainerStyle={{
-            marginTop: SIZES.padding * 2
+            marginTop: SIZES.padding * 2,
+            zIndex:50
           }}
-          chartPrices={coins[0]?.sparkline_in_7d.price}
+          chartPrices={ selectedCoin ? selectedCoin?.sparkline_in_7d?.price : coins[0]?.sparkline_in_7d.price}
         />
 
       {/**Top Cryptocurrency */}
+      <View style={{marginBottom: SIZES.radius}}>
+          <Text style={{color: COLORS.white, fontSize: 15, fontWeight: '600', marginLeft: 10}}>Top Cryptocurrency</Text>
+      </View>
+      <FlatList 
+        data={coins}
+        keyExtractor={item => item.id}
+        contentContainerStyle={{
+          marginTop: 5,
+          paddingHorizontal: SIZES.padding
+        }}
+        renderItem={({item}) => {
+          let priceColor = (item.price_change_percentage_7d_in_currency === 0)? COLORS.lightGray3 : (item.price_change_percentage_7d_in_currency > 0) ? COLORS.lightGreen : COLORS.red
+          return(
+            <TouchableOpacity style={{
+              height: 55,
+              flexDirection: "row",
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => setSelectedCoin(item)}>
+              {/**Logo */}
+              <View
+              style={{width: 35}}>
+                  <Image source={{uri: item.image}}
+                    style={{height: 20, width: 20}}
+                  />
+              </View>
+
+              {/**Name */}
+                <View style={{flex: 1}}>
+                    <Text style={{color: COLORS.white, fontWeight: '500'}}>{item.name}</Text>
+                </View>
+              {/**Figures */}
+              <View>
+                <Text style={{textAlign: 'right', color: COLORS.white, fontWeight: '600'}}>$ {item.current_price}</Text>
+
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+                    {item.price_change_percentage_7d_in_currency != 0  && 
+                      <Image 
+                      source={icons.upArrow}
+                        style={{
+                          height: 10, 
+                          width: 10, 
+                          tintColor: priceColor,
+                          transform: item.price_change_percentage_7d_in_currency > 0 ? [{rotate: "45deg"}] : [{rotate: "125deg"}]}}
+                      />
+                    }
+                      <Text style={{marginLeft: 5, color: priceColor, fontWeight: '300', lineHeight: 15}}>
+                        {item.price_change_percentage_7d_in_currency.toFixed(2)}%
+                      </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )
+        }}
+        ListFooterComponent={
+          <View 
+            style={{
+              marginBottom:10
+            }}
+          />
+        }
+      />
         
       </View>
     </MainLayout>
